@@ -1,0 +1,10 @@
+---
+description: Follow repository conventions when implementing task1-fullstack features.
+alwaysApply: true
+---
+
+# Project context
+
+Read the root `README.md` and the layered structure under `task1-fullstack/backend` before implementing features.
+
+Keep TypeScript strict, preserve the end-to-end campaign flow, and use consistent API response envelopes as described in project documentation.

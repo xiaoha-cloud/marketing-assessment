@@ -1,0 +1,2 @@
+-- SQLite schema for task1-fullstack.
+-- Table definitions are added in the database initialization phase.
