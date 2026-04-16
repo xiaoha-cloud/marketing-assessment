@@ -9,10 +9,7 @@ export type EmailDispatchRequest = {
 };
 
 /** Input to the service that sends a campaign email. */
-export type SendCampaignEmailInput = {
-  campaignId: number;
-  recipientEmail: string;
-};
+export type SendCampaignEmailInput = EmailDispatchRequest;
 
 export type SendCampaignEmailResult =
   | {
