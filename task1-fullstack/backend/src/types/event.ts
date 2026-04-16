@@ -1,6 +1,23 @@
 /**
- * Domain and API-facing event types.
- * Filled in during the database phase.
+ * Event domain model (camelCase) and SQLite row shape (snake_case).
  */
 
-export type EventId = number;
+export type Event = {
+  id: number;
+  campaignId: number;
+  name: string;
+  eventDate: string;
+  location: string;
+  capacity: number;
+  description: string;
+};
+
+export type EventRow = {
+  id: number;
+  campaign_id: number;
+  name: string;
+  event_date: string;
+  location: string;
+  capacity: number;
+  description: string;
+};
