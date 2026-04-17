@@ -1,5 +1,9 @@
 import { CampaignListPage } from "./pages/CampaignListPage.js";
 
 export function App() {
-  return <CampaignListPage />;
+  return (
+    <div className="app-root">
+      <CampaignListPage />
+    </div>
+  );
 }

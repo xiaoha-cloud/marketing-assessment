@@ -1,0 +1,62 @@
+:root {
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #f6f6f8;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.campaign-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.campaign-card {
+  background: #fff;
+  border: 1px solid #d8d8de;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+.campaign-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+}
+
+.campaign-meta {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.event-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.event-list-empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.error-state {
+  background: #fff0f0;
+  border: 1px solid #e0a0a0;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+.error-state button {
+  margin-top: 0.5rem;
+}
