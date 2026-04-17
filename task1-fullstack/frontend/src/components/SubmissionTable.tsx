@@ -1,3 +1,4 @@
+import { formatDateTime } from "../utils/formatDate.js";
 import type { SubmissionListItem } from "../types/submission.js";
 
 type SubmissionTableProps = {
@@ -30,7 +31,7 @@ export function SubmissionTable({ rows }: SubmissionTableProps) {
               <td>{row.email}</td>
               <td>{row.company}</td>
               <td>{row.campaignName ?? "—"}</td>
-              <td>{row.submittedAt}</td>
+              <td>{formatDateTime(row.submittedAt)}</td>
             </tr>
           ))}
         </tbody>

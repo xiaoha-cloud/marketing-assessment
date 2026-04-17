@@ -6,9 +6,9 @@ type ErrorStateProps = {
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
   return (
     <div className="error-state" role="alert">
-      <p>{message}</p>
+      <p className="error-state__message">{message}</p>
       {onRetry !== undefined ? (
-        <button type="button" onClick={onRetry}>
+        <button type="button" className="button button--secondary" onClick={onRetry}>
           Retry
         </button>
       ) : null}

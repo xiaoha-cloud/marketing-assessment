@@ -1,74 +1,52 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { fetchLandingCampaign } from "../api/landingApi.js";
+import { useLandingCampaign } from "../hooks/useLandingCampaign.js";
 import { ErrorState } from "../components/ErrorState.js";
 import { EventList } from "../components/EventList.js";
 import { LandingForm } from "../components/LandingForm.js";
 import { LoadingState } from "../components/LoadingState.js";
-import type { CampaignLandingView } from "../types/campaign.js";
+import { PageHero } from "../components/PageHero.js";
+import { PageSection } from "../components/PageSection.js";
 
 export function LandingPage() {
   const { slug } = useParams<{ slug: string }>();
-  const [campaign, setCampaign] = useState<CampaignLandingView | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: campaign, status, error, reload } = useLandingCampaign(slug);
   const [leadSaved, setLeadSaved] = useState(false);
-  const [leadSubmitting, setLeadSubmitting] = useState(false);
-
-  const load = useCallback(async () => {
-    if (slug === undefined || slug.trim() === "") {
-      setCampaign(null);
-      setError("Campaign not found");
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setLeadSaved(false);
-    try {
-      const data = await fetchLandingCampaign(slug);
-      setCampaign(data);
-    } catch (err) {
-      setCampaign(null);
-      setError(err instanceof Error ? err.message : "Failed to load campaign");
-    } finally {
-      setLoading(false);
-    }
-  }, [slug]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    setLeadSaved(false);
+  }, [slug]);
 
   return (
-    <main className="page landing-page">
-      {loading ? <LoadingState message="Loading campaign…" /> : null}
-      {error !== null && !loading ? (
-        <ErrorState message={error} onRetry={() => void load()} />
+    <main className="page page--landing">
+      {status === "loading" ? <LoadingState message="Loading campaign…" /> : null}
+      {status === "error" && error !== null ? (
+        <ErrorState message={error} onRetry={() => void reload()} />
       ) : null}
-      {!loading && error === null && campaign !== null ? (
+      {status === "success" && campaign !== null ? (
         <>
-          <h1>{campaign.name}</h1>
-          <p className="landing-description">{campaign.description}</p>
-          <p className="landing-cta-label">
-            <strong>Call to action:</strong> {campaign.ctaText}
-          </p>
-          <section className="landing-events" aria-labelledby="events-heading">
-            <h2 id="events-heading">Events</h2>
-            <EventList events={campaign.events} />
-          </section>
-          {leadSaved ? (
-            <p className="landing-thankyou" role="status">
-              Thank you — your information has been received.
+          <PageHero
+            eyebrow="Campaign"
+            title={campaign.name}
+            subtitle={campaign.description}
+            variant="gradient"
+          >
+            <p className="page-hero__cta-line">
+              <span className="page-hero__cta-label">Call to action</span>
+              <span className="page-hero__cta-text">{campaign.ctaText}</span>
             </p>
+          </PageHero>
+          <PageSection title="Events" titleId="landing-events-title">
+            <EventList events={campaign.events} />
+          </PageSection>
+          {leadSaved ? (
+            <PageSection title="Thank you" titleId="landing-thanks-title" className="page-section--thankyou">
+              <p className="thankyou-copy" role="status">
+                Your information has been received. We will follow up shortly.
+              </p>
+            </PageSection>
           ) : (
-            <LandingForm
-              slug={campaign.slug}
-              disabled={leadSubmitting}
-              onSubmittingChange={setLeadSubmitting}
-              onSuccess={() => setLeadSaved(true)}
-            />
+            <LandingForm key={campaign.slug} slug={campaign.slug} onSuccess={() => setLeadSaved(true)} />
           )}
         </>
       ) : null}

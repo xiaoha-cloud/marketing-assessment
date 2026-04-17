@@ -1,56 +1,47 @@
-import { FormEvent, useState } from "react";
-import { LandingSubmitError, submitLandingLead } from "../api/landingApi.js";
+import { type FormEvent, useEffect, useState } from "react";
+import { useLandingSubmission } from "../hooks/useLandingSubmission.js";
+import { PageSection } from "./PageSection.js";
 
 type LandingFormProps = {
   slug: string;
-  disabled?: boolean;
-  onSubmittingChange: (submitting: boolean) => void;
   onSuccess: () => void;
 };
 
-export function LandingForm({
-  slug,
-  disabled = false,
-  onSubmittingChange,
-  onSuccess,
-}: LandingFormProps) {
+export function LandingForm({ slug, onSuccess }: LandingFormProps) {
+  const { submit, status, error, reset } = useLandingSubmission(slug);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
-  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    reset();
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setCompany("");
+  }, [slug, reset]);
+
+  const submitting = status === "submitting";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (disabled) {
+    if (submitting) {
       return;
     }
-    setSubmitError(null);
-    onSubmittingChange(true);
-    try {
-      await submitLandingLead(slug, {
-        firstName,
-        lastName,
-        email,
-        company,
-      });
+    const ok = await submit({
+      firstName,
+      lastName,
+      email,
+      company,
+    });
+    if (ok) {
       onSuccess();
-    } catch (err) {
-      const message =
-        err instanceof LandingSubmitError
-          ? err.message
-          : err instanceof Error
-            ? err.message
-            : "Submission failed";
-      setSubmitError(message);
-    } finally {
-      onSubmittingChange(false);
     }
   }
 
   return (
-    <section className="landing-form-section" aria-labelledby="lead-form-heading">
-      <h2 id="lead-form-heading">Request information</h2>
+    <PageSection title="Request information" titleId="lead-form-title" className="page-section--form">
       <form className="landing-form" onSubmit={(e) => void handleSubmit(e)}>
         <label className="form-field">
           <span>First name</span>
@@ -60,7 +51,7 @@ export function LandingForm({
             value={firstName}
             onChange={(ev) => setFirstName(ev.target.value)}
             required
-            disabled={disabled}
+            disabled={submitting}
           />
         </label>
         <label className="form-field">
@@ -71,7 +62,7 @@ export function LandingForm({
             value={lastName}
             onChange={(ev) => setLastName(ev.target.value)}
             required
-            disabled={disabled}
+            disabled={submitting}
           />
         </label>
         <label className="form-field">
@@ -83,7 +74,7 @@ export function LandingForm({
             value={email}
             onChange={(ev) => setEmail(ev.target.value)}
             required
-            disabled={disabled}
+            disabled={submitting}
           />
         </label>
         <label className="form-field">
@@ -94,18 +85,18 @@ export function LandingForm({
             value={company}
             onChange={(ev) => setCompany(ev.target.value)}
             required
-            disabled={disabled}
+            disabled={submitting}
           />
         </label>
-        {submitError !== null ? (
+        {error !== null ? (
           <p className="form-local-error" role="alert">
-            {submitError}
+            {error}
           </p>
         ) : null}
-        <button type="submit" className="form-submit" disabled={disabled}>
-          Submit
+        <button type="submit" className="button button--cta" disabled={submitting}>
+          {submitting ? "Sending…" : "Submit"}
         </button>
       </form>
-    </section>
+    </PageSection>
   );
 }

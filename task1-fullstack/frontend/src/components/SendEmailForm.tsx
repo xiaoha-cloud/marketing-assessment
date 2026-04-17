@@ -1,47 +1,39 @@
-import { type FormEvent, useState } from "react";
-import { sendCampaignEmail } from "../api/campaignApi.js";
+import { type FormEvent } from "react";
+import { useSendCampaignEmail } from "../hooks/useSendCampaignEmail.js";
 
 type SendEmailFormProps = {
   campaignId: number;
 };
 
 export function SendEmailForm({ campaignId }: SendEmailFormProps) {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const { recipientEmail, setRecipientEmail, status, feedback, send } = useSendCampaignEmail(campaignId);
+  const sending = status === "sending";
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus("sending");
-    setFeedback(null);
-    try {
-      await sendCampaignEmail(campaignId, email);
-      setStatus("success");
-      setFeedback("Email sent successfully.");
-      setEmail("");
-    } catch (err) {
-      setStatus("error");
-      setFeedback(err instanceof Error ? err.message : "Could not send email");
-    }
+    await send();
   }
 
   return (
     <form className="send-email-form" onSubmit={(e) => void handleSubmit(e)}>
-      <label htmlFor={`recipient-${campaignId}`}>Send campaign email to</label>
-      <div className="send-email-form__row">
+      <span className="send-email-form__label" id={`send-label-${campaignId}`}>
+        Send campaign email
+      </span>
+      <div className="send-email-form__row" role="group" aria-labelledby={`send-label-${campaignId}`}>
         <input
           id={`recipient-${campaignId}`}
           type="email"
           name="recipientEmail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={recipientEmail}
+          onChange={(e) => setRecipientEmail(e.target.value)}
           placeholder="recipient@example.com"
           required
-          disabled={status === "sending"}
+          disabled={sending}
           autoComplete="email"
+          aria-label="Recipient email"
         />
-        <button type="submit" disabled={status === "sending"}>
-          {status === "sending" ? "Sending…" : "Send email"}
+        <button type="submit" className="button button--cta button--compact" disabled={sending}>
+          {sending ? "Sending…" : "Send"}
         </button>
       </div>
       {feedback !== null ? (

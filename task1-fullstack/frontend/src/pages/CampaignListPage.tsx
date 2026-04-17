@@ -1,44 +1,28 @@
-import { useCallback, useEffect, useState } from "react";
-import { fetchCampaigns } from "../api/campaignApi.js";
+import { useCampaigns } from "../hooks/useCampaigns.js";
 import { CampaignCard } from "../components/CampaignCard.js";
 import { SendEmailForm } from "../components/SendEmailForm.js";
 import { ErrorState } from "../components/ErrorState.js";
 import { LoadingState } from "../components/LoadingState.js";
-import type { CampaignWithEvents } from "../types/campaign.js";
+import { PageHero } from "../components/PageHero.js";
 
 export function CampaignListPage() {
-  const [campaigns, setCampaigns] = useState<CampaignWithEvents[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await fetchCampaigns();
-      setCampaigns(data);
-    } catch (err) {
-      setCampaigns(null);
-      setError(err instanceof Error ? err.message : "Failed to load campaigns");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const { data, status, error, reload } = useCampaigns();
 
   return (
-    <main className="page campaign-list-page">
-      <h1>Campaigns</h1>
-      {loading ? <LoadingState /> : null}
-      {error !== null && !loading ? (
-        <ErrorState message={error} onRetry={() => void load()} />
+    <main className="page page--campaigns">
+      <PageHero
+        eyebrow="Marketing programs"
+        title="Campaigns"
+        subtitle="Browse live programs, open their landing experiences, and send campaign email to a recipient."
+        variant="gradient"
+      />
+      {status === "loading" ? <LoadingState message="Loading campaigns…" /> : null}
+      {status === "error" && error !== null ? (
+        <ErrorState message={error} onRetry={() => void reload()} />
       ) : null}
-      {!loading && error === null && campaigns !== null ? (
-        <div className="campaign-grid">
-          {campaigns.map((campaign) => (
+      {status === "success" && data !== null ? (
+        <div className="campaign-stack">
+          {data.map((campaign) => (
             <div key={campaign.id} className="campaign-list-item">
               <CampaignCard campaign={campaign} />
               <SendEmailForm campaignId={campaign.id} />
