@@ -5,7 +5,7 @@ type LoadingStateProps = {
 
 export function LoadingState({ message = "Loading…" }: LoadingStateProps) {
   return (
-    <p className="loading-state" role="status">
+    <p className="mb-4 text-[0.95rem] text-muted" role="status">
       {message}
     </p>
   );

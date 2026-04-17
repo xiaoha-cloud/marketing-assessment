@@ -6,10 +6,23 @@ import { SubmissionsPage } from "./pages/SubmissionsPage.js";
 export function App() {
   return (
     <BrowserRouter>
-      <div className="app-root">
-        <nav className="app-nav" aria-label="Main">
-          <Link to="/">Campaigns</Link>
-          <Link to="/submissions">Submissions</Link>
+      <div className="flex min-h-screen flex-col">
+        <nav
+          className="flex gap-7 border-b-2 border-ink bg-surface px-6 py-4"
+          aria-label="Main"
+        >
+          <Link
+            className="text-[0.78rem] font-bold uppercase tracking-[0.08em] text-ink no-underline hover:underline hover:underline-offset-4"
+            to="/"
+          >
+            Campaigns
+          </Link>
+          <Link
+            className="text-[0.78rem] font-bold uppercase tracking-[0.08em] text-ink no-underline hover:underline hover:underline-offset-4"
+            to="/submissions"
+          >
+            Submissions
+          </Link>
         </nav>
         <Routes>
           <Route path="/" element={<CampaignListPage />} />

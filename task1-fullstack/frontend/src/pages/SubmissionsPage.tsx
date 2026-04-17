@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { fetchSubmissionsExportCsv } from "../api/submissionApi.js";
 import { useSubmissions } from "../hooks/useSubmissions.js";
 import { downloadBlob } from "../utils/downloadFile.js";
+import { buttonSecondary } from "../ui/buttonClasses.js";
 import { ErrorState } from "../components/ErrorState.js";
 import { LoadingState } from "../components/LoadingState.js";
 import { PageHeader } from "../components/PageHeader.js";
@@ -26,14 +27,15 @@ export function SubmissionsPage() {
   }, []);
 
   return (
-    <main className="page page--submissions">
+    <main className="mx-auto w-full max-w-4xl flex-1 px-5 pb-16 pt-8">
       <PageHeader
+        variant="subdued"
         title="Submissions"
         description="Leads captured from landing pages. Export matches this view."
         actions={
           <button
             type="button"
-            className="button button--secondary"
+            className={buttonSecondary}
             onClick={() => void handleDownloadCsv()}
             disabled={isExporting}
           >
@@ -42,7 +44,7 @@ export function SubmissionsPage() {
         }
       />
       {exportError !== null ? (
-        <p className="inline-alert inline-alert--error" role="status">
+        <p className="mb-4 text-[0.9rem] text-error" role="status">
           {exportError}
         </p>
       ) : null}

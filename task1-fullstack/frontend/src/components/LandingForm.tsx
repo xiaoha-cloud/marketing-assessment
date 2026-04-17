@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { useLandingSubmission } from "../hooks/useLandingSubmission.js";
+import { buttonCta } from "../ui/buttonClasses.js";
 import { PageSection } from "./PageSection.js";
 
 type LandingFormProps = {
@@ -38,10 +39,13 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
     }
   }
 
+  const fieldClass =
+    "flex flex-col gap-1 text-[0.88rem] font-semibold text-ink [&_input]:border-2 [&_input]:border-ink [&_input]:bg-surface [&_input]:px-2.5 [&_input]:py-2 [&_input]:text-ink [&_input]:outline-none [&_input]:ring-ink [&_input]:focus-visible:ring-2";
+
   return (
-    <PageSection title="Request information" titleId="lead-form-title" className="page-section--form">
-      <form className="landing-form" onSubmit={(e) => void handleSubmit(e)}>
-        <label className="form-field">
+    <PageSection title="Request information" titleId="lead-form-title">
+      <form className="grid max-w-88 gap-3.5" onSubmit={(e) => void handleSubmit(e)}>
+        <label className={fieldClass}>
           <span>First name</span>
           <input
             name="firstName"
@@ -52,7 +56,7 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
             disabled={isSubmitting}
           />
         </label>
-        <label className="form-field">
+        <label className={fieldClass}>
           <span>Last name</span>
           <input
             name="lastName"
@@ -63,7 +67,7 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
             disabled={isSubmitting}
           />
         </label>
-        <label className="form-field">
+        <label className={fieldClass}>
           <span>Email</span>
           <input
             name="email"
@@ -75,7 +79,7 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
             disabled={isSubmitting}
           />
         </label>
-        <label className="form-field">
+        <label className={fieldClass}>
           <span>Company</span>
           <input
             name="company"
@@ -87,11 +91,11 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
           />
         </label>
         {submitError !== null ? (
-          <p className="form-local-error" role="alert">
+          <p className="m-0 text-[0.88rem] text-error" role="alert">
             {submitError}
           </p>
         ) : null}
-        <button type="submit" className="button button--cta" disabled={isSubmitting}>
+        <button type="submit" className={`${buttonCta} mt-1 w-fit`} disabled={isSubmitting}>
           {isSubmitting ? "Sending…" : "Submit"}
         </button>
       </form>

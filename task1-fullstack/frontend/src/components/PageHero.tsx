@@ -7,7 +7,6 @@ type PageHeroProps = {
   title: string;
   subtitle?: string;
   variant?: PageHeroVariant;
-  /** Optional modifier for page-specific spacing (e.g. campaign list). */
   className?: string;
   children?: ReactNode;
 };
@@ -20,16 +19,32 @@ export function PageHero({
   className,
   children,
 }: PageHeroProps) {
-  const rootClass = ["page-hero", `page-hero--${variant}`, className].filter(Boolean).join(" ");
+  const variantClasses =
+    variant === "gradient"
+      ? "bg-hero text-white"
+      : "bg-surface text-ink";
+
+  const rootClass = [
+    "mb-9 border-2 border-ink",
+    variantClasses,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <header className={rootClass}>
-      <div className="page-hero__inner">
+      <div className="px-6 py-9">
         {eyebrow !== undefined && eyebrow !== "" ? (
-          <p className="page-hero__eyebrow">{eyebrow}</p>
+          <p className="mb-2 text-[0.72rem] font-bold uppercase tracking-[0.14em] opacity-90">
+            {eyebrow}
+          </p>
         ) : null}
-        <h1 className="page-hero__title">{title}</h1>
+        <h1 className="mb-3.5 text-[clamp(2rem,6vw,3.1rem)] font-extrabold leading-[1.08] tracking-[-0.03em]">
+          {title}
+        </h1>
         {subtitle !== undefined && subtitle !== "" ? (
-          <p className="page-hero__subtitle">{subtitle}</p>
+          <p className="max-w-xl text-[1.05rem] leading-relaxed opacity-95">{subtitle}</p>
         ) : null}
         {children}
       </div>
