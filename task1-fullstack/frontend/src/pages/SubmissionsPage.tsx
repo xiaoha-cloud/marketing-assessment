@@ -1,11 +1,29 @@
+import { useCallback, useState } from "react";
+import { fetchSubmissionsExportCsv } from "../api/submissionApi.js";
 import { useSubmissions } from "../hooks/useSubmissions.js";
+import { downloadBlob } from "../utils/downloadFile.js";
 import { ErrorState } from "../components/ErrorState.js";
 import { LoadingState } from "../components/LoadingState.js";
 import { PageHeader } from "../components/PageHeader.js";
 import { SubmissionTable } from "../components/SubmissionTable.js";
 
 export function SubmissionsPage() {
-  const { data, status, error, reload, csvExport } = useSubmissions();
+  const { submissions, isLoading, error, reload } = useSubmissions();
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  const handleDownloadCsv = useCallback(async () => {
+    setIsExporting(true);
+    setExportError(null);
+    try {
+      const blob = await fetchSubmissionsExportCsv();
+      downloadBlob(blob, "submissions.csv");
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "Download failed");
+    } finally {
+      setIsExporting(false);
+    }
+  }, []);
 
   return (
     <main className="page page--submissions">
@@ -16,26 +34,23 @@ export function SubmissionsPage() {
           <button
             type="button"
             className="button button--secondary"
-            onClick={() => {
-              csvExport.clearError();
-              void csvExport.download();
-            }}
-            disabled={csvExport.status === "pending"}
+            onClick={() => void handleDownloadCsv()}
+            disabled={isExporting}
           >
-            {csvExport.status === "pending" ? "Preparing…" : "Download CSV"}
+            {isExporting ? "Preparing…" : "Download CSV"}
           </button>
         }
       />
-      {csvExport.error !== null ? (
+      {exportError !== null ? (
         <p className="inline-alert inline-alert--error" role="status">
-          {csvExport.error}
+          {exportError}
         </p>
       ) : null}
-      {status === "loading" ? <LoadingState message="Loading submissions…" /> : null}
-      {status === "error" && error !== null ? (
-        <ErrorState message={error} onRetry={() => void reload()} />
+      {isLoading ? <LoadingState message="Loading submissions…" /> : null}
+      {!isLoading && error !== null ? <ErrorState message={error} onRetry={() => void reload()} /> : null}
+      {!isLoading && error === null && submissions !== null ? (
+        <SubmissionTable rows={submissions} />
       ) : null}
-      {status === "success" && data !== null ? <SubmissionTable rows={data} /> : null}
     </main>
   );
 }

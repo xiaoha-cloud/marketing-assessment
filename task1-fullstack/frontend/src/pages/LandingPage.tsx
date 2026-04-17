@@ -10,7 +10,7 @@ import { PageSection } from "../components/PageSection.js";
 
 export function LandingPage() {
   const { slug } = useParams<{ slug: string }>();
-  const { data: campaign, status, error, reload } = useLandingCampaign(slug);
+  const { campaign, isLoading, error, reload } = useLandingCampaign(slug);
   const [leadSaved, setLeadSaved] = useState(false);
 
   useEffect(() => {
@@ -19,11 +19,9 @@ export function LandingPage() {
 
   return (
     <main className="page page--landing">
-      {status === "loading" ? <LoadingState message="Loading campaign…" /> : null}
-      {status === "error" && error !== null ? (
-        <ErrorState message={error} onRetry={() => void reload()} />
-      ) : null}
-      {status === "success" && campaign !== null ? (
+      {isLoading ? <LoadingState message="Loading campaign…" /> : null}
+      {!isLoading && error !== null ? <ErrorState message={error} onRetry={() => void reload()} /> : null}
+      {!isLoading && error === null && campaign !== null ? (
         <>
           <PageHero
             eyebrow="Campaign"

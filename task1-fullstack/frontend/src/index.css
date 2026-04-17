@@ -1,3 +1,9 @@
+/**
+ * Editorial marketing UI: strong type, black rules, generous space,
+ * yellow primary CTA, blue–green gradient heroes (internal list + landing).
+ * Submissions stay restrained — readability over decoration.
+ */
+
 :root {
   --font: system-ui, -apple-system, "Segoe UI", sans-serif;
   --color-bg: #f4f4f1;
@@ -11,6 +17,7 @@
   --color-success: #1b5e20;
   --hero-gradient: linear-gradient(125deg, #1d4ed8 0%, #059669 92%);
   font-family: var(--font);
+  font-size: 1.0625rem;
   line-height: 1.55;
   color: var(--color-text);
   background: var(--color-bg);
@@ -68,6 +75,10 @@ body {
 
 .page--submissions {
   max-width: 56rem;
+}
+
+.page--campaigns {
+  max-width: 52rem;
 }
 
 /* ——— Buttons ——— */
@@ -203,6 +214,12 @@ body {
 
 .page-header__actions {
   flex-shrink: 0;
+}
+
+.page--submissions .page-header__title {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 /* ——— Sections ——— */

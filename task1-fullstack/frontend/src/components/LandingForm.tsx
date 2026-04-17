@@ -8,7 +8,7 @@ type LandingFormProps = {
 };
 
 export function LandingForm({ slug, onSuccess }: LandingFormProps) {
-  const { submit, status, error, reset } = useLandingSubmission(slug);
+  const { isSubmitting, submitError, submit, reset } = useLandingSubmission(slug);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,11 +22,9 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
     setCompany("");
   }, [slug, reset]);
 
-  const submitting = status === "submitting";
-
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (submitting) {
+    if (isSubmitting) {
       return;
     }
     const ok = await submit({
@@ -51,7 +49,7 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
             value={firstName}
             onChange={(ev) => setFirstName(ev.target.value)}
             required
-            disabled={submitting}
+            disabled={isSubmitting}
           />
         </label>
         <label className="form-field">
@@ -62,7 +60,7 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
             value={lastName}
             onChange={(ev) => setLastName(ev.target.value)}
             required
-            disabled={submitting}
+            disabled={isSubmitting}
           />
         </label>
         <label className="form-field">
@@ -74,7 +72,7 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
             value={email}
             onChange={(ev) => setEmail(ev.target.value)}
             required
-            disabled={submitting}
+            disabled={isSubmitting}
           />
         </label>
         <label className="form-field">
@@ -85,16 +83,16 @@ export function LandingForm({ slug, onSuccess }: LandingFormProps) {
             value={company}
             onChange={(ev) => setCompany(ev.target.value)}
             required
-            disabled={submitting}
+            disabled={isSubmitting}
           />
         </label>
-        {error !== null ? (
+        {submitError !== null ? (
           <p className="form-local-error" role="alert">
-            {error}
+            {submitError}
           </p>
         ) : null}
-        <button type="submit" className="button button--cta" disabled={submitting}>
-          {submitting ? "Sending…" : "Submit"}
+        <button type="submit" className="button button--cta" disabled={isSubmitting}>
+          {isSubmitting ? "Sending…" : "Submit"}
         </button>
       </form>
     </PageSection>

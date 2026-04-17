@@ -6,4 +6,3 @@ export type {
   Event,
 } from "./campaign.js";
 export type { LandingSubmissionRequest, SubmissionListItem } from "./submission.js";
-export type { RemoteDataStatus } from "./remoteData.js";

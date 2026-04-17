@@ -1,38 +1,42 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchLandingCampaign } from "../api/landingApi.js";
 import type { CampaignLandingView } from "../types/campaign.js";
-import type { RemoteDataStatus } from "../types/remoteData.js";
 
 export type UseLandingCampaignResult = {
-  data: CampaignLandingView | null;
-  status: RemoteDataStatus;
+  campaign: CampaignLandingView | null;
+  isLoading: boolean;
   error: string | null;
   reload: () => Promise<void>;
 };
 
+/**
+ * Loads a single campaign for the public landing experience.
+ */
 export function useLandingCampaign(slug: string | undefined): UseLandingCampaignResult {
-  const [data, setData] = useState<CampaignLandingView | null>(null);
-  const [status, setStatus] = useState<RemoteDataStatus>("loading");
+  const [campaign, setCampaign] = useState<CampaignLandingView | null>(null);
+  const [isLoading, setIsLoading] = useState(
+    () => slug !== undefined && slug.trim() !== "",
+  );
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     if (slug === undefined || slug.trim() === "") {
-      setData(null);
+      setCampaign(null);
       setError("Campaign not found");
-      setStatus("error");
+      setIsLoading(false);
       return;
     }
 
-    setStatus("loading");
+    setIsLoading(true);
     setError(null);
     try {
-      const campaign = await fetchLandingCampaign(slug);
-      setData(campaign);
-      setStatus("success");
+      const data = await fetchLandingCampaign(slug);
+      setCampaign(data);
     } catch (err) {
-      setData(null);
+      setCampaign(null);
       setError(err instanceof Error ? err.message : "Failed to load campaign");
-      setStatus("error");
+    } finally {
+      setIsLoading(false);
     }
   }, [slug]);
 
@@ -40,5 +44,5 @@ export function useLandingCampaign(slug: string | undefined): UseLandingCampaign
     void reload();
   }, [reload]);
 
-  return { data, status, error, reload };
+  return { campaign, isLoading, error, reload };
 }

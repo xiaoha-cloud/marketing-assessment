@@ -1,43 +1,33 @@
 import { useCallback, useEffect, useState } from "react";
-import { fetchSubmissions, fetchSubmissionsExportCsv } from "../api/submissionApi.js";
-import { downloadBlob } from "../utils/downloadFile.js";
-import type { RemoteDataStatus } from "../types/remoteData.js";
+import { fetchSubmissions } from "../api/submissionApi.js";
 import type { SubmissionListItem } from "../types/submission.js";
 
-export type CsvExportStatus = "idle" | "pending" | "error";
-
 export type UseSubmissionsResult = {
-  data: SubmissionListItem[] | null;
-  status: RemoteDataStatus;
+  submissions: SubmissionListItem[] | null;
+  isLoading: boolean;
   error: string | null;
   reload: () => Promise<void>;
-  csvExport: {
-    status: CsvExportStatus;
-    error: string | null;
-    download: () => Promise<void>;
-    clearError: () => void;
-  };
 };
 
+/**
+ * Loads submissions for the internal dashboard (same data shape as CSV export).
+ */
 export function useSubmissions(): UseSubmissionsResult {
-  const [data, setData] = useState<SubmissionListItem[] | null>(null);
-  const [status, setStatus] = useState<RemoteDataStatus>("loading");
+  const [submissions, setSubmissions] = useState<SubmissionListItem[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [csvStatus, setCsvStatus] = useState<CsvExportStatus>("idle");
-  const [csvError, setCsvError] = useState<string | null>(null);
-
   const reload = useCallback(async () => {
-    setStatus("loading");
+    setIsLoading(true);
     setError(null);
     try {
       const rows = await fetchSubmissions();
-      setData(rows);
-      setStatus("success");
+      setSubmissions(rows);
     } catch (err) {
-      setData(null);
+      setSubmissions(null);
       setError(err instanceof Error ? err.message : "Failed to load submissions");
-      setStatus("error");
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -45,34 +35,5 @@ export function useSubmissions(): UseSubmissionsResult {
     void reload();
   }, [reload]);
 
-  const download = useCallback(async () => {
-    setCsvStatus("pending");
-    setCsvError(null);
-    try {
-      const blob = await fetchSubmissionsExportCsv();
-      downloadBlob(blob, "submissions.csv");
-      setCsvStatus("idle");
-    } catch (err) {
-      setCsvStatus("error");
-      setCsvError(err instanceof Error ? err.message : "Download failed");
-    }
-  }, []);
-
-  const clearCsvError = useCallback(() => {
-    setCsvError(null);
-    setCsvStatus("idle");
-  }, []);
-
-  return {
-    data,
-    status,
-    error,
-    reload,
-    csvExport: {
-      status: csvStatus,
-      error: csvError,
-      download,
-      clearError: clearCsvError,
-    },
-  };
+  return { submissions, isLoading, error, reload };
 }

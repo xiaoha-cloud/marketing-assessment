@@ -6,13 +6,22 @@ type SendEmailFormProps = {
 };
 
 export function SendEmailForm({ campaignId }: SendEmailFormProps) {
-  const { recipientEmail, setRecipientEmail, status, feedback, send } = useSendCampaignEmail(campaignId);
-  const sending = status === "sending";
+  const {
+    recipientEmail,
+    setRecipientEmail,
+    isSending,
+    sendError,
+    sendSuccessMessage,
+    send,
+  } = useSendCampaignEmail(campaignId);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     await send();
   }
+
+  const feedback = sendError ?? sendSuccessMessage;
+  const feedbackIsError = sendError !== null;
 
   return (
     <form className="send-email-form" onSubmit={(e) => void handleSubmit(e)}>
@@ -28,18 +37,18 @@ export function SendEmailForm({ campaignId }: SendEmailFormProps) {
           onChange={(e) => setRecipientEmail(e.target.value)}
           placeholder="recipient@example.com"
           required
-          disabled={sending}
+          disabled={isSending}
           autoComplete="email"
           aria-label="Recipient email"
         />
-        <button type="submit" className="button button--cta button--compact" disabled={sending}>
-          {sending ? "Sending…" : "Send"}
+        <button type="submit" className="button button--cta button--compact" disabled={isSending}>
+          {isSending ? "Sending…" : "Send"}
         </button>
       </div>
       {feedback !== null ? (
         <p
           className={
-            status === "error" ? "form-feedback form-feedback--error" : "form-feedback form-feedback--success"
+            feedbackIsError ? "form-feedback form-feedback--error" : "form-feedback form-feedback--success"
           }
           role="status"
         >

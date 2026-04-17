@@ -6,7 +6,7 @@ import { LoadingState } from "../components/LoadingState.js";
 import { PageHero } from "../components/PageHero.js";
 
 export function CampaignListPage() {
-  const { data, status, error, reload } = useCampaigns();
+  const { campaigns, isLoading, error, reload } = useCampaigns();
 
   return (
     <main className="page page--campaigns">
@@ -16,13 +16,11 @@ export function CampaignListPage() {
         subtitle="Browse live programs, open their landing experiences, and send campaign email to a recipient."
         variant="gradient"
       />
-      {status === "loading" ? <LoadingState message="Loading campaigns…" /> : null}
-      {status === "error" && error !== null ? (
-        <ErrorState message={error} onRetry={() => void reload()} />
-      ) : null}
-      {status === "success" && data !== null ? (
+      {isLoading ? <LoadingState message="Loading campaigns…" /> : null}
+      {!isLoading && error !== null ? <ErrorState message={error} onRetry={() => void reload()} /> : null}
+      {!isLoading && error === null && campaigns !== null ? (
         <div className="campaign-stack">
-          {data.map((campaign) => (
+          {campaigns.map((campaign) => (
             <div key={campaign.id} className="campaign-list-item">
               <CampaignCard campaign={campaign} />
               <SendEmailForm campaignId={campaign.id} />
