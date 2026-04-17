@@ -9,6 +9,24 @@ body {
   margin: 0;
 }
 
+.app-nav {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-bottom: 1px solid #d8d8de;
+}
+
+.app-nav a {
+  color: #1a5fbe;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.app-nav a:hover {
+  text-decoration: underline;
+}
+
 .page {
   max-width: 52rem;
   margin: 0 auto;
@@ -61,6 +79,91 @@ body {
 .landing-events h2 {
   font-size: 1.05rem;
   margin: 0 0 0.5rem;
+}
+
+.landing-form-section {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #d8d8de;
+}
+
+.landing-form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 22rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.form-field input {
+  padding: 0.45rem 0.5rem;
+  border: 1px solid #c8c8d0;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.form-local-error {
+  margin: 0;
+  color: #a40000;
+  font-size: 0.9rem;
+}
+
+.form-submit {
+  margin-top: 0.25rem;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #1a5fbe;
+  background: #1a5fbe;
+  color: #fff;
+}
+
+.form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.landing-thankyou {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+}
+
+.submission-table-wrap {
+  overflow-x: auto;
+}
+
+.submission-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: #fff;
+  border: 1px solid #d8d8de;
+  border-radius: 8px;
+}
+
+.submission-table th,
+.submission-table td {
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid #e8e8ee;
+}
+
+.submission-table th {
+  background: #f0f0f4;
+}
+
+.submission-table-empty {
+  margin: 0;
+  color: #555;
 }
 
 .event-list {

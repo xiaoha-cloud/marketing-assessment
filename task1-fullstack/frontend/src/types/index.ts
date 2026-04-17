@@ -5,3 +5,4 @@ export type {
   CampaignWithEvents,
   Event,
 } from "./campaign.js";
+export type { LandingSubmissionRequest, SubmissionListItem } from "./submission.js";

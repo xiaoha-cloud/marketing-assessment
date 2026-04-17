@@ -39,6 +39,18 @@ export type LandingSubmissionRequest = {
   company: string;
 };
 
+/** Row shape from submissions joined with campaigns (snake_case columns). */
+export type SubmissionListJoinRow = {
+  id: number;
+  campaign_id: number;
+  campaign_name: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  company: string;
+  submitted_at: string;
+};
+
 /** Dashboard list row; campaign name is optional until joined in a query. */
 export type SubmissionListItem = {
   id: number;
