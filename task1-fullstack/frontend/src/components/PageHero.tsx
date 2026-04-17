@@ -7,6 +7,8 @@ type PageHeroProps = {
   title: string;
   subtitle?: string;
   variant?: PageHeroVariant;
+  /** Optional modifier for page-specific spacing (e.g. campaign list). */
+  className?: string;
   children?: ReactNode;
 };
 
@@ -15,10 +17,12 @@ export function PageHero({
   title,
   subtitle,
   variant = "gradient",
+  className,
   children,
 }: PageHeroProps) {
+  const rootClass = ["page-hero", `page-hero--${variant}`, className].filter(Boolean).join(" ");
   return (
-    <header className={`page-hero page-hero--${variant}`}>
+    <header className={rootClass}>
       <div className="page-hero__inner">
         {eyebrow !== undefined && eyebrow !== "" ? (
           <p className="page-hero__eyebrow">{eyebrow}</p>

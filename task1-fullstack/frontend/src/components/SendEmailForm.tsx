@@ -24,7 +24,11 @@ export function SendEmailForm({ campaignId }: SendEmailFormProps) {
   const feedbackIsError = sendError !== null;
 
   return (
-    <form className="send-email-form" onSubmit={(e) => void handleSubmit(e)}>
+    <form
+      className="send-email-form send-email-form--footer"
+      aria-label="Send campaign email"
+      onSubmit={(e) => void handleSubmit(e)}
+    >
       <span className="send-email-form__label" id={`send-label-${campaignId}`}>
         Send campaign email
       </span>

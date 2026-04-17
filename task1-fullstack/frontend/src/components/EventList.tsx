@@ -11,15 +11,21 @@ export function EventList({ events }: EventListProps) {
   }
 
   return (
-    <ul className="event-list">
+    <ul className="event-list" role="list">
       {events.map((event) => (
         <li key={event.id} className="event-list__item">
-          <span className="event-list__name">{event.name}</span>
-          <span className="event-list__detail">
-            {" "}
-            — {formatDateOrDateTime(event.eventDate)} @ {event.location}
-          </span>
-          <span className="event-list__detail"> (capacity {event.capacity})</span>
+          <div className="event-list__title">{event.name}</div>
+          <div className="event-list__meta">
+            <span>{formatDateOrDateTime(event.eventDate)}</span>
+            <span className="event-list__meta-sep" aria-hidden="true">
+              ·
+            </span>
+            <span>{event.location}</span>
+            <span className="event-list__meta-sep" aria-hidden="true">
+              ·
+            </span>
+            <span>Capacity {event.capacity}</span>
+          </div>
         </li>
       ))}
     </ul>
