@@ -28,3 +28,13 @@ export type Campaign = {
 export type CampaignWithEvents = Campaign & {
   events: Event[];
 };
+
+/** Payload from GET /api/landing/:slug (public fields only). */
+export type CampaignLandingView = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  ctaText: string;
+  events: Event[];
+};

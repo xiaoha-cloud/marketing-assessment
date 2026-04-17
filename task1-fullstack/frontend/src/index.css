@@ -34,9 +34,33 @@ body {
 }
 
 .campaign-meta {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.35rem;
   font-size: 0.9rem;
   color: #444;
+}
+
+.campaign-landing-link {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.campaign-landing-link a {
+  color: #1a5fbe;
+}
+
+.landing-description {
+  margin: 0 0 1rem;
+  max-width: 40rem;
+}
+
+.landing-cta-label {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+}
+
+.landing-events h2 {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
 }
 
 .event-list {

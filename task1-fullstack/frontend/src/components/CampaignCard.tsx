@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { CampaignWithEvents } from "../types/campaign.js";
 import { EventList } from "./EventList.js";
 
@@ -14,6 +15,9 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
           <span>{campaign.status}</span>
           <span aria-hidden="true"> · </span>
           <span>{campaign.platform}</span>
+        </p>
+        <p className="campaign-landing-link">
+          <Link to={`/landing/${campaign.slug}`}>Open landing page</Link>
         </p>
       </header>
       <EventList events={campaign.events} />

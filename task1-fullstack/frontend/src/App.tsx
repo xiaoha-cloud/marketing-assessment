@@ -1,9 +1,17 @@
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { CampaignListPage } from "./pages/CampaignListPage.js";
+import { LandingPage } from "./pages/LandingPage.js";
 
 export function App() {
   return (
-    <div className="app-root">
-      <CampaignListPage />
-    </div>
+    <BrowserRouter>
+      <div className="app-root">
+        <Routes>
+          <Route path="/" element={<CampaignListPage />} />
+          <Route path="/landing/:slug" element={<LandingPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
