@@ -1,4 +1,10 @@
 /**
+ * Tailwind CSS is loaded first so utility classes work across the app.
+ * Custom editorial styles follow (existing UI unchanged in this setup step).
+ */
+@import "tailwindcss";
+
+/**
  * Editorial marketing UI: strong type, black rules, generous space,
  * yellow primary CTA, blue–green gradient heroes (internal list + landing).
  * Submissions stay restrained — readability over decoration.
