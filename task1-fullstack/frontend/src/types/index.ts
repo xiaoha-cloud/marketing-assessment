@@ -1,6 +1,2 @@
-/**
- * Shared frontend types mirroring API contracts.
- * Filled in during frontend integration phases.
- */
-
-export {};
+export type { ApiError, ApiErrorResponse, ApiSuccessResponse } from "./api.js";
+export type { Campaign, CampaignWithEvents, Event } from "./campaign.js";
