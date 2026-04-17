@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp src/db/schema.sql dist/db/ && cp src/db/seed_campaigns.json dist/db/",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts"
   },
   "dependencies": {
     "better-sqlite3": "^12.9.0",
+    "dotenv": "^17.4.2",
     "express": "^4.21.2",
     "nodemailer": "^8.0.5"
   },
