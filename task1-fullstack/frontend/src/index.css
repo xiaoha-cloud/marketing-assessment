@@ -181,6 +181,39 @@ body {
   color: #555;
 }
 
+.submissions-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.submissions-page-header h1 {
+  margin: 0;
+}
+
+.submissions-csv-button {
+  padding: 0.5rem 1rem;
+  font: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #1a5fbe;
+  background: #fff;
+  color: #1a5fbe;
+  font-weight: 500;
+}
+
+.submissions-csv-button:hover:not(:disabled) {
+  background: #f0f6ff;
+}
+
+.submissions-csv-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .event-list {
   margin: 0;
   padding-left: 1.25rem;

@@ -13,3 +13,14 @@ export const listSubmissionsHandler: RequestHandler = (_req, res, next) => {
     next(err);
   }
 };
+
+export const exportSubmissionsCsvHandler: RequestHandler = (_req, res, next) => {
+  try {
+    const csv = submissionService.exportSubmissionsCsv();
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="submissions.csv"');
+    res.status(200).send(csv);
+  } catch (err) {
+    next(err);
+  }
+};

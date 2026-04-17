@@ -4,8 +4,10 @@
 
 import * as campaignRepository from "../repositories/campaignRepository.js";
 import * as submissionRepository from "../repositories/submissionRepository.js";
+import { serializeSubmissionExportRows } from "../utils/csv.js";
 import type {
   LandingSubmissionRequest,
+  SubmissionExportRow,
   SubmissionListItem,
 } from "../types/submission.js";
 
@@ -40,4 +42,24 @@ export function createLandingSubmission(
 
 export function getAllSubmissions(): SubmissionListItem[] {
   return submissionRepository.findAllWithCampaignName();
+}
+
+function submissionListItemToExportRow(item: SubmissionListItem): SubmissionExportRow {
+  return {
+    id: String(item.id),
+    campaignId: String(item.campaignId),
+    campaignName: item.campaignName ?? "",
+    firstName: item.firstName,
+    lastName: item.lastName,
+    email: item.email,
+    company: item.company,
+    submittedAt: item.submittedAt,
+  };
+}
+
+/** CSV body for all submissions (same ordering and source as the dashboard list). */
+export function exportSubmissionsCsv(): string {
+  const items = getAllSubmissions();
+  const exportRows = items.map(submissionListItemToExportRow);
+  return serializeSubmissionExportRows(exportRows);
 }
