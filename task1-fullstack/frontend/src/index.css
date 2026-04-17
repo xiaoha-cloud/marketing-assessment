@@ -39,6 +39,21 @@ body {
   gap: 1rem;
 }
 
+.campaign-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #fff;
+  border: 1px solid #d8d8de;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.campaign-list-item .campaign-card {
+  border: none;
+  border-radius: 0;
+}
+
 .campaign-card {
   background: #fff;
   border: 1px solid #d8d8de;
@@ -175,6 +190,59 @@ body {
   margin: 0;
   font-size: 0.9rem;
   color: #555;
+}
+
+.send-email-form {
+  margin: 0;
+  padding: 0 1.25rem 1rem;
+  border-top: 1px solid #e8e8ee;
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.send-email-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.send-email-form input[type="email"] {
+  flex: 1 1 12rem;
+  min-width: 0;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid #c8c8d0;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.send-email-form button {
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #1a5fbe;
+  background: #1a5fbe;
+  color: #fff;
+}
+
+.send-email-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-feedback {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.form-feedback--success {
+  color: #1b5e20;
+}
+
+.form-feedback--error {
+  color: #a40000;
 }
 
 .error-state {

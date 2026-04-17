@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchCampaigns } from "../api/campaignApi.js";
 import { CampaignCard } from "../components/CampaignCard.js";
+import { SendEmailForm } from "../components/SendEmailForm.js";
 import { ErrorState } from "../components/ErrorState.js";
 import { LoadingState } from "../components/LoadingState.js";
 import type { CampaignWithEvents } from "../types/campaign.js";
@@ -38,7 +39,10 @@ export function CampaignListPage() {
       {!loading && error === null && campaigns !== null ? (
         <div className="campaign-grid">
           {campaigns.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
+            <div key={campaign.id} className="campaign-list-item">
+              <CampaignCard campaign={campaign} />
+              <SendEmailForm campaignId={campaign.id} />
+            </div>
           ))}
         </div>
       ) : null}
