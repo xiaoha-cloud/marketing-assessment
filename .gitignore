@@ -16,3 +16,9 @@ dist/
 
 # OS / editor
 .DS_Store
+
+# Python (task2 local caches)
+task2-data-pipeline/.cache/
+task2-data-pipeline/.venv/
+**/__pycache__/
+*.py[cod]

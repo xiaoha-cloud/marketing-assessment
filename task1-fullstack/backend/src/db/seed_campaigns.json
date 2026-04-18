@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Summer Brand Awareness",
+    "slug": "summer-brand-awareness",
+    "description": "Sample summer campaign for local review and demonstration.",
+    "emailSubject": "Discover our summer campaign",
+    "ctaText": "Learn more",
+    "status": "active",
+    "platform": "web",
+    "budgetUsd": 5000,
+    "createdAt": "2025-01-15T12:00:00.000Z",
+    "events": [
+      {
+        "id": 1,
+        "campaignId": 1,
+        "name": "Launch webinar",
+        "eventDate": "2025-06-15",
+        "location": "Online",
+        "capacity": 100,
+        "description": "Kickoff event for the summer program."
+      }
+    ]
+  }
+]

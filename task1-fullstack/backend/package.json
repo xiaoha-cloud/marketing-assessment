@@ -4,16 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp src/db/schema.sql dist/db/ && cp src/db/seed_campaigns.json dist/db/",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "better-sqlite3": "^12.9.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "nodemailer": "^8.0.5"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.2",
+    "@types/nodemailer": "^8.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
