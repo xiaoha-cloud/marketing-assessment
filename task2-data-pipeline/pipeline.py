@@ -11,8 +11,9 @@ from src.deduplicate import deduplicate_profiles
 from src.filter_rows import remove_irrelevant_rows
 from src.inspect import inspect_data
 from src.selection import (
-    build_final_export,
-    select_one_row_per_company,
+    FINAL_OUTPUT_COLUMNS,
+    build_final_output,
+    select_best_contact_per_company,
 )
 from src.utils import normalize_text_fields
 
@@ -20,13 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent
 INPUT_CSV = BASE_DIR / "linkedin_raw_data.csv"
 OUTPUT_CSV = BASE_DIR / "marketing_contacts_clean.csv"
 
-OUTPUT_COLUMNS = [
-    "company_name",
-    "contact_name",
-    "job_title",
-    "email",
-    "linkedin_url",
-]
+OUTPUT_COLUMNS = FINAL_OUTPUT_COLUMNS
 
 BASE_TEXT_COLUMNS = (
     "raw_name",
@@ -55,13 +50,25 @@ def run_pipeline(df: pd.DataFrame) -> pd.DataFrame:
     classified = classify_roles(cleaned)
     filtered = remove_irrelevant_rows(classified)
     deduped = deduplicate_profiles(filtered)
-    per_company = select_one_row_per_company(deduped)
-    return build_final_export(per_company)
+    per_company = select_best_contact_per_company(deduped)
+    return build_final_output(per_company)
 
 
 def write_output(df: pd.DataFrame, path: Path) -> None:
     """Write the final CSV with exactly the required columns."""
-    out = df.reindex(columns=OUTPUT_COLUMNS)
+    out = df.reindex(columns=OUTPUT_COLUMNS).fillna("")
+    out = out.astype(str)
+    out["email"] = out["email"].replace("nan", "")
+    out["linkedin_url"] = out["linkedin_url"].replace("nan", "")
+    out["company_name"] = out["company_name"].replace("nan", "")
+    out["contact_name"] = out["contact_name"].replace("nan", "")
+    out["job_title"] = out["job_title"].replace("nan", "")
+
+    if list(out.columns) != OUTPUT_COLUMNS:
+        raise ValueError("Final output columns do not match the required schema.")
+    if not out["company_name"].is_unique:
+        raise ValueError("Final output must contain exactly one row per company.")
+
     out.to_csv(path, index=False)
     print(f"Wrote {path.name} ({len(out)} rows).")
 
