@@ -1,8 +1,14 @@
 /**
  * Builds absolute landing page URLs for email CTAs.
- * Implemented in the email sending phase once public base URL rules are defined.
  */
 
-export function buildLandingUrl(_slug: string): string {
-  throw new Error("buildLandingUrl not implemented");
+import { getLandingBaseUrl } from "../config/env.js";
+
+export function buildLandingUrl(slug: string): string {
+  const trimmedSlug = slug.trim().replace(/^\/+/, "").replace(/\/+$/, "");
+  if (trimmedSlug === "") {
+    throw new Error("Campaign slug cannot be empty");
+  }
+  const base = getLandingBaseUrl();
+  return `${base}/landing/${encodeURIComponent(trimmedSlug)}`;
 }

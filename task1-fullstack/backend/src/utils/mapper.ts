@@ -4,7 +4,12 @@
 
 import type { Campaign, CampaignRow } from "../types/campaign.js";
 import type { Event, EventRow } from "../types/event.js";
-import type { Submission, SubmissionRow } from "../types/submission.js";
+import type {
+  Submission,
+  SubmissionListItem,
+  SubmissionListJoinRow,
+  SubmissionRow,
+} from "../types/submission.js";
 
 export function mapCampaignRow(row: CampaignRow): Campaign {
   return {
@@ -37,6 +42,19 @@ export function mapSubmissionRow(row: SubmissionRow): Submission {
   return {
     id: row.id,
     campaignId: row.campaign_id,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    email: row.email,
+    company: row.company,
+    submittedAt: row.submitted_at,
+  };
+}
+
+export function mapSubmissionListJoinRow(row: SubmissionListJoinRow): SubmissionListItem {
+  return {
+    id: row.id,
+    campaignId: row.campaign_id,
+    campaignName: row.campaign_name,
     firstName: row.first_name,
     lastName: row.last_name,
     email: row.email,

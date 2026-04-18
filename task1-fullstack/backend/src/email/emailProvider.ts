@@ -12,6 +12,7 @@ export type EmailSendInput = {
 
 export type EmailSendResult = {
   previewUrl?: string;
+  messageId?: string;
 };
 
 export interface EmailProvider {
