@@ -7,6 +7,12 @@ This repository contains two independent assessment tasks:
 | [`task1-fullstack/`](task1-fullstack/) | Campaign email dispatch and lead capture (TypeScript full stack) |
 | [`task2-data-pipeline/`](task2-data-pipeline/) | Python data cleaning pipeline |
 
+## Highlight
+
+![Screen Recording 2026-04-18 at 14 35 30](https://github.com/user-attachments/assets/65afd23e-4bd1-4300-94b8-fe29b443caeb)
+
+
+
 ## Repository summary
 
 - **Task 1** delivers a small but complete campaign workflow: campaign list, email send, landing page by slug, lead capture, submissions dashboard, and CSV export.
