@@ -13,6 +13,7 @@ export function SendEmailForm({ campaignId }: SendEmailFormProps) {
     isSending,
     sendError,
     sendSuccessMessage,
+    previewUrlFallback,
     send,
   } = useSendCampaignEmail(campaignId);
 
@@ -64,6 +65,19 @@ export function SendEmailForm({ campaignId }: SendEmailFormProps) {
           role="status"
         >
           {feedback}
+        </p>
+      ) : null}
+      {previewUrlFallback !== null ? (
+        <p className="m-0 mt-1 text-[0.75rem] text-ink" role="status">
+          <span className="text-muted">Popup blocked — open preview:</span>{" "}
+          <a
+            href={previewUrlFallback}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="break-all font-semibold text-ink underline ring-ink focus-visible:outline-none focus-visible:ring-2"
+          >
+            {previewUrlFallback}
+          </a>
         </p>
       ) : null}
     </form>
