@@ -6,7 +6,7 @@ This task is independent from `task1-fullstack`.
 
 ## Purpose
 
-The goal of this script is to turn a noisy LinkedIn-style export into a reviewer-ready CSV that a non-technical user could use directly for outbound marketing. It standardizes names, titles, companies, emails, and LinkedIn URLs, filters to relevant senior marketing contacts, deduplicates repeated profiles, and writes one final record per company.
+The goal of this script is to turn a noisy LinkedIn-style export into a reviewer ready CSV that a non-technical user could use directly for outbound marketing. It standardizes names, titles, companies, emails, and LinkedIn URLs, filters to relevant senior marketing contacts, deduplicates repeated profiles, and writes one final record per company.
 
 ## Project layout
 
@@ -112,27 +112,55 @@ Core rules are centralized in `src/config.py` so the pipeline stays deterministi
 
 ## Data quality issues observed (assessment dataset)
 
-The provided `linkedin_raw_data.csv` shows typical scrape problems:
+The provided `linkedin_raw_data.csv` is a small but noisy LinkedIn-style scrape. The most common issues I found were:
 
-- **Names** — extra spaces, ALL CAPS, honorifics (`Dr.`), placeholders (`N/A`, `-`), and a fake “LinkedIn Ads” row.
-- **Headlines** — pipes (`|`), “Title at Company”, HTML entities (`&amp;`), mixed marketing vs non-marketing roles.
-- **Company** — sometimes blank while the company appears in the headline; inconsistent branding (`Meta Ireland` vs `LinkedIn` vs `LinkedIn Ireland`).
-- **Email** — missing values, a phone number in the email column, personal Gmail mixed with corporate addresses for the same profile history.
-- **Profile URLs** — occasionally missing scheme (`linkedin.com/in/...`).
-- **Duplicates** — repeated scrapes of the same person (`scraped_at` differs).
+- **Names** — extra spaces, mixed casing, ALL CAPS, honorifics (`Dr.`), placeholders such as `N/A` and `-`, and clearly invalid rows.
+- **Headlines** — titles mixed with industry tags, brand names, separators (`|`), HTML entities (`&amp;`), and both target and non-target roles in the same dataset.
+- **Company names** — missing `company_name` values that had to be inferred from `headline`, plus inconsistent display names such as `LinkedIn`, `LinkedIn Ireland`, and `Meta Ireland`.
+- **Email values** — many blanks, phone numbers typed into the email field, and cases where a personal email appeared alongside a corporate email for the same person across different scrapes.
+- **LinkedIn URLs** — incomplete URLs such as `linkedin.com/in/...` without a scheme, or other formatting inconsistencies.
+- **Duplicates** — repeated scrapes of the same person at the same company with different `scraped_at` values and different data completeness.
+- **Irrelevant rows** — engineering, HR, finance, CEO, and ad / sponsored rows mixed into a marketing-contact extraction task.
 
-These observations drive the rule-based cleaning and ranking order above.
+These issues drive the rule-based cleaning, filtering, deduplication, and company-level ranking steps in the pipeline.
 
-## Assumptions and limitations
+## How the pipeline handles these issues
 
-- **Role rules** are regex-based on headline + derived title; ambiguous “manager” titles are excluded unless they match the documented senior patterns (for example “Senior Marketing Manager”, “Director of Marketing”).
-- **Company matching** uses heuristic grouping (strip `Ireland` / `EMEA`, etc.); edge cases may still split or merge organizations incorrectly.
-- **Personal email** — if only a personal address exists after deduplication, the pipeline outputs an empty `email` field.
-- **`tldextract`** uses the bundled public suffix list (`suffix_list_urls=()`) and a writable cache directory under `task2-data-pipeline/.cache/` so runs do not depend on downloading the PSL at startup.
+- **Name cleanup** — trims whitespace, normalizes casing, removes honorific prefixes, and drops placeholder-style names.
+- **Headline parsing** — extracts a cleaner `job_title` from noisy headlines before role classification.
+- **Company recovery and normalization** — fills some missing company names from the headline and applies lightweight display-name normalization plus grouping keys.
+- **Email cleanup** — validates syntax, rejects phone-like values, and flags personal domains so they can be excluded from final output.
+- **LinkedIn normalization** — converts valid LinkedIn profile strings into full `https://...` URLs and blanks out invalid values.
+- **Role filtering** — keeps only target senior marketing contacts and removes clearly irrelevant functional roles.
+- **Deduplication** — resolves repeated person-company rows using recency plus data quality signals rather than keeping rows arbitrarily.
+- **Final selection** — chooses one best contact per company using deterministic ranking based on seniority, corporate email, LinkedIn presence, and recency.
+
+## Assumptions and judgement calls
+
+- **Role filtering is rule-based, not ML-based** — target-role detection uses regex patterns over the original headline plus the cleaned title. This keeps the logic explainable and deterministic, but some borderline titles may still be misclassified.
+- **Manager titles are handled conservatively** — not every title containing `marketing` is treated as a target contact. More execution-oriented titles such as `Digital Marketing Manager` or `Brand Marketing Manager` are excluded unless they match a more senior pattern.
+- **Personal emails are never surfaced in final output** — if a contact only has a personal address after cleaning and deduplication, the final `email` field is intentionally left blank.
+- **Company matching is lightweight** — I used heuristic normalization and a few brand aliases rather than full entity resolution, so a small number of company names may still be under-merged or over-merged.
+- **Duplicate resolution is business-oriented** — repeated records are not resolved by recency alone. The pipeline also prefers rows that are more usable in practice, especially rows with a corporate email, a valid LinkedIn URL, and stronger seniority signals.
+- **`tldextract` uses a bundled suffix list** — the project uses `suffix_list_urls=()` and a local cache directory under `task2-data-pipeline/.cache/` so email-domain parsing remains reproducible and does not rely on a network fetch at runtime.
+
+## Confidence in the final output
+
+I have medium-to-high confidence in the final output for the scope of this assessment. The pipeline is deterministic, the ranking logic is explicit, the final CSV is constrained to the required five columns, and the output enforces one row per company with normalized empty-string handling. That said, this is still a heuristic, rules-based pipeline rather than a fully validated production data system, so edge cases remain around borderline role titles, company-name grouping, and which duplicate record is truly "best" for outreach.
+
+With more time, I would add targeted unit tests around the cleaning and ranking rules, create a small manually labeled validation set for role classification and final selection, expand company-name normalization coverage, and capture more decision metadata for easier reviewer auditing.
+
+## What I would do with more time
+
+- Add targeted unit tests for the highest-risk cleaning, deduplication, and ranking rules.
+- Add a small manually labeled validation sample so I can measure keep / exclude / merge decisions against expected outcomes instead of relying only on visual spot checks.
+- Expand company name normalization and alias coverage to reduce under-merging and over-merging edge cases.
+- Make final ranking decisions easier to review and validate by capturing internal debug signals or short explanations for why one contact was selected over another.
+- Extend the rule set for borderline titles such as `Marketing Communications Lead`, `Demand Generation`, and `Brand & Partnerships`, where a small keyword list can miss useful nuance.
 
 ## Brief commentary
 
-The most common data quality issues in the source file were inconsistent casing and spacing, missing company fields, malformed or personal emails, incomplete LinkedIn URLs, and repeated scrapes of the same person. I made conservative judgement calls during cleaning: seniority is inferred with regex rules from the headline and derived title, company grouping uses lightweight normalization heuristics, and personal-only emails are intentionally blanked out in the final CSV. I am reasonably confident the final output is suitable for the assessment because the pipeline is deterministic, produces one row per company, and enforces the required five-column schema automatically. With more time, I would improve confidence further by adding targeted automated tests, expanding company normalization coverage, and validating borderline role titles against a larger labeled sample.
+The source data combines the usual scrape quality problems: inconsistent names, noisy headlines, missing company fields, malformed or personal emails, incomplete LinkedIn URLs, and duplicate profile captures. I handled these with conservative, rule based cleaning so the pipeline stays explainable: it normalizes text, infers titles and some company names, filters to senior marketing roles, rejects personal-only emails from the deliverable, and resolves duplicates with business-oriented tie-breakers. I am reasonably confident the final CSV is appropriate for this assessment because it is deterministic, reviewable, and enforces the required output schema automatically. If I had more time, I would strengthen it with a labeled validation sample, broader normalization rules, and automated tests for the highest-risk edge cases.
 
 ## Inspection output
 
