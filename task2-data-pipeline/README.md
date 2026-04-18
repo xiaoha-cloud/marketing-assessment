@@ -4,6 +4,10 @@ Python pipeline for cleaning raw LinkedIn-style marketing contact data and selec
 
 This task is independent from `task1-fullstack`.
 
+## Purpose
+
+The goal of this script is to turn a noisy LinkedIn-style export into a reviewer-ready CSV that a non-technical user could use directly for outbound marketing. It standardizes names, titles, companies, emails, and LinkedIn URLs, filters to relevant senior marketing contacts, deduplicates repeated profiles, and writes one final record per company.
+
 ## Project layout
 
 ```text
@@ -48,6 +52,19 @@ python pipeline.py
 
 The script loads `linkedin_raw_data.csv`, prints an inspection summary, and overwrites `marketing_contacts_clean.csv`. No manual edits are required.
 
+## Required files
+
+The pipeline expects these files to be present in `task2-data-pipeline/`:
+
+- `pipeline.py` — entrypoint
+- `linkedin_raw_data.csv` — raw assessment input
+- `requirements.txt` — Python dependencies
+- `src/` — cleaning, classification, deduplication, and selection modules
+
+After a successful run, the folder also contains:
+
+- `marketing_contacts_clean.csv` — generated final submission file
+
 ## Inputs and outputs
 
 | Role | File |
@@ -76,7 +93,7 @@ The output CSV has **exactly** these columns:
 9. **Role classification** — `src/classify_roles.py::classify_roles()` sets `is_target_role`, `role_category`, and `seniority_rank` using `ROLE_INCLUDE_KEYWORDS` / `ROLE_EXCLUDE_KEYWORDS` and `SENIORITY_LEVEL_PATTERNS` in `config.py`. Non-target rows get `seniority_rank = 0`.
 10. **Filter irrelevant rows** — `src/filter_rows.py::remove_irrelevant_rows()` drops sponsored/invalid-name rows, requires non-empty `contact_name_clean` / `company_name_clean` / `company_key`, and keeps `is_target_role == True` when present.
 11. **Deduplicate** — `src/deduplicate.py::deduplicate_profiles()` keeps one row per `(name_key, company_key)`; `scraped_at` is parsed with `dateutil`; tie-break order is recency, corporate email, LinkedIn presence, seniority, shorter derived title, then name.
-12. **Select** — `src/selection.py::select_one_row_per_company()` picks one row per `company_key` using seniority, corporate email, LinkedIn, recency.
+12. **Select** — `src/selection.py::select_best_contact_per_company()` picks one row per `company_key` using seniority, corporate email, LinkedIn, recency, then stable alphabetical tie-breaks.
 13. **Write** final five-column CSV.
 
 `pipeline.py` runs base normalize and `clean_names` before `clean_raw_dataframe`; title and company steps run inside `clean_raw_dataframe` **after** per-column whitespace so `headline` / `company_name` match what downstream parsers expect.
@@ -112,6 +129,10 @@ These observations drive the rule-based cleaning and ranking order above.
 - **Company matching** uses heuristic grouping (strip `Ireland` / `EMEA`, etc.); edge cases may still split or merge organizations incorrectly.
 - **Personal email** — if only a personal address exists after deduplication, the pipeline outputs an empty `email` field.
 - **`tldextract`** uses the bundled public suffix list (`suffix_list_urls=()`) and a writable cache directory under `task2-data-pipeline/.cache/` so runs do not depend on downloading the PSL at startup.
+
+## Brief commentary
+
+The most common data quality issues in the source file were inconsistent casing and spacing, missing company fields, malformed or personal emails, incomplete LinkedIn URLs, and repeated scrapes of the same person. I made conservative judgement calls during cleaning: seniority is inferred with regex rules from the headline and derived title, company grouping uses lightweight normalization heuristics, and personal-only emails are intentionally blanked out in the final CSV. I am reasonably confident the final output is suitable for the assessment because the pipeline is deterministic, produces one row per company, and enforces the required five-column schema automatically. With more time, I would improve confidence further by adding targeted automated tests, expanding company normalization coverage, and validating borderline role titles against a larger labeled sample.
 
 ## Inspection output
 
