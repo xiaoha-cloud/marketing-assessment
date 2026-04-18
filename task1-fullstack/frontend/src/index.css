@@ -1,0 +1,33 @@
+/**
+ * Tailwind CSS v4 with editorial design tokens (page background, ink, CTA yellow, hero gradient).
+ */
+@import "tailwindcss";
+
+@theme {
+  --color-page: #f4f4f1;
+  --color-surface: #ffffff;
+  --color-ink: #0a0a0a;
+  --color-muted: #5c5c5c;
+  --color-cta: #ffeb33;
+  --color-error: #a40000;
+  --color-success: #1b5e20;
+  --background-image-hero: linear-gradient(125deg, #1d4ed8 0%, #059669 92%);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-page);
+    color: var(--color-ink);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
