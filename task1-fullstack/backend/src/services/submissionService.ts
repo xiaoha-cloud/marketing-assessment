@@ -15,21 +15,21 @@ export type CreateLandingSubmissionResult =
   | { ok: true; submissionId: number }
   | { ok: false; code: "CAMPAIGN_NOT_FOUND" };
 
-export function createLandingSubmission(
+export async function createLandingSubmission(
   slug: string,
   payload: LandingSubmissionRequest,
-): CreateLandingSubmissionResult {
+): Promise<CreateLandingSubmissionResult> {
   const trimmedSlug = slug.trim();
   if (trimmedSlug === "") {
     return { ok: false, code: "CAMPAIGN_NOT_FOUND" };
   }
 
-  const campaignRow = campaignRepository.findBySlug(trimmedSlug);
+  const campaignRow = await campaignRepository.findBySlug(trimmedSlug);
   if (campaignRow === null) {
     return { ok: false, code: "CAMPAIGN_NOT_FOUND" };
   }
 
-  const submissionId = submissionRepository.create({
+  const submissionId = await submissionRepository.create({
     campaignId: campaignRow.id,
     firstName: payload.firstName,
     lastName: payload.lastName,
@@ -40,7 +40,7 @@ export function createLandingSubmission(
   return { ok: true, submissionId };
 }
 
-export function getAllSubmissions(): SubmissionListItem[] {
+export async function getAllSubmissions(): Promise<SubmissionListItem[]> {
   return submissionRepository.findAllWithCampaignName();
 }
 
@@ -58,8 +58,8 @@ function submissionListItemToExportRow(item: SubmissionListItem): SubmissionExpo
 }
 
 /** CSV body for all submissions (same ordering and source as the dashboard list). */
-export function exportSubmissionsCsv(): string {
-  const items = getAllSubmissions();
+export async function exportSubmissionsCsv(): Promise<string> {
+  const items = await getAllSubmissions();
   const exportRows = items.map(submissionListItemToExportRow);
   return serializeSubmissionExportRows(exportRows);
 }

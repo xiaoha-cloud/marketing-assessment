@@ -5,7 +5,8 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { getDb } from "./connection.js";
+import { pathToFileURL } from "node:url";
+import { prisma } from "./prisma.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -41,51 +42,46 @@ export async function seedDb(): Promise<void> {
     return;
   }
 
-  const db = getDb();
-  const row = db.prepare("SELECT COUNT(*) AS c FROM campaigns").get() as { c: number };
-  if (row.c > 0) {
+  const campaignCount = await prisma.campaign.count();
+  if (campaignCount > 0) {
     return;
   }
 
-  const insertCampaign = db.prepare(
-    `INSERT INTO campaigns (
-      id, name, slug, description, email_subject, cta_text, status, platform, budget_usd, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  );
-
-  const insertEvent = db.prepare(
-    `INSERT INTO events (
-      id, campaign_id, name, event_date, location, capacity, description
-    ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  );
-
-  const insertAll = db.transaction((campaigns: SeedCampaign[]) => {
-    for (const c of campaigns) {
-      insertCampaign.run(
-        c.id,
-        c.name,
-        c.slug,
-        c.description,
-        c.emailSubject,
-        c.ctaText,
-        c.status,
-        c.platform,
-        c.budgetUsd,
-        c.createdAt,
-      );
-      for (const e of c.events) {
-        insertEvent.run(
-          e.id,
-          e.campaignId,
-          e.name,
-          e.eventDate,
-          e.location,
-          e.capacity,
-          e.description,
-        );
-      }
+  await prisma.$transaction(async (tx) => {
+    for (const campaign of data as SeedCampaign[]) {
+      await tx.campaign.create({
+        data: {
+          id: campaign.id,
+          name: campaign.name,
+          slug: campaign.slug,
+          description: campaign.description,
+          emailSubject: campaign.emailSubject,
+          ctaText: campaign.ctaText,
+          status: campaign.status,
+          platform: campaign.platform,
+          budgetUsd: campaign.budgetUsd,
+          createdAt: campaign.createdAt,
+          events: {
+            create: campaign.events.map((event) => ({
+              id: event.id,
+              name: event.name,
+              eventDate: event.eventDate,
+              location: event.location,
+              capacity: event.capacity,
+              description: event.description,
+            })),
+          },
+        },
+      });
     }
   });
+}
 
-  insertAll(data as SeedCampaign[]);
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  seedDb()
+    .catch((err: unknown) => {
+      console.error(err);
+      process.exitCode = 1;
+    })
+    .finally(() => prisma.$disconnect());
 }

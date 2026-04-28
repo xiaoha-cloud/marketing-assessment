@@ -7,7 +7,7 @@ import * as campaignService from "../services/campaignService.js";
 import * as submissionService from "../services/submissionService.js";
 import { parseLandingSubmissionRequest } from "../validators/landingValidators.js";
 
-export const getLandingBySlugHandler: RequestHandler = (req, res, next) => {
+export const getLandingBySlugHandler: RequestHandler = async (req, res, next) => {
   try {
     const slug = req.params.slug;
     if (typeof slug !== "string" || slug.trim() === "") {
@@ -20,7 +20,7 @@ export const getLandingBySlugHandler: RequestHandler = (req, res, next) => {
       return;
     }
 
-    const data = campaignService.getLandingCampaignBySlug(slug);
+    const data = await campaignService.getLandingCampaignBySlug(slug);
     if (data === null) {
       res.status(404).json({
         error: {
@@ -37,7 +37,7 @@ export const getLandingBySlugHandler: RequestHandler = (req, res, next) => {
   }
 };
 
-export const postLandingSubmitHandler: RequestHandler = (req, res, next) => {
+export const postLandingSubmitHandler: RequestHandler = async (req, res, next) => {
   try {
     const slug = req.params.slug;
     if (typeof slug !== "string" || slug.trim() === "") {
@@ -61,7 +61,7 @@ export const postLandingSubmitHandler: RequestHandler = (req, res, next) => {
       return;
     }
 
-    const result = submissionService.createLandingSubmission(slug, parsed.value);
+    const result = await submissionService.createLandingSubmission(slug, parsed.value);
     if (result.ok === false) {
       res.status(404).json({
         error: {

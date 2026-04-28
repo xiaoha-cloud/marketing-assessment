@@ -6,16 +6,16 @@ import type { RequestHandler } from "express";
 import * as campaignService from "../services/campaignService.js";
 import { isRecord } from "../validators/commonValidators.js";
 
-export const listCampaignsHandler: RequestHandler = (_req, res, next) => {
+export const listCampaignsHandler: RequestHandler = async (_req, res, next) => {
   try {
-    const data = campaignService.getAllCampaigns();
+    const data = await campaignService.getAllCampaigns();
     res.status(200).json({ data });
   } catch (err) {
     next(err);
   }
 };
 
-export const getCampaignByIdHandler: RequestHandler = (req, res, next) => {
+export const getCampaignByIdHandler: RequestHandler = async (req, res, next) => {
   try {
     const raw = req.params.id;
     const id = Number(raw);
@@ -29,7 +29,7 @@ export const getCampaignByIdHandler: RequestHandler = (req, res, next) => {
       return;
     }
 
-    const campaign = campaignService.getCampaignById(id);
+    const campaign = await campaignService.getCampaignById(id);
     if (campaign === null) {
       res.status(404).json({
         error: {

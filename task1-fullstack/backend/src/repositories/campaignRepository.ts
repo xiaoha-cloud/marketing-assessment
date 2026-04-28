@@ -2,39 +2,42 @@
  * Read access for campaigns. Returns DB row shapes; use mapper for domain models.
  */
 
-import { getDb } from "../db/connection.js";
+import { prisma } from "../db/prisma.js";
 import type { CampaignRow } from "../types/campaign.js";
+import type { CampaignModel } from "../generated/prisma/models/Campaign.js";
 
-const selectColumns = `id, name, slug, description, email_subject, cta_text, status, platform, budget_usd, created_at`;
-
-export function findAll(): CampaignRow[] {
-  return getDb()
-    .prepare(
-      `SELECT ${selectColumns}
-       FROM campaigns
-       ORDER BY id ASC`,
-    )
-    .all() as CampaignRow[];
+function toCampaignRow(campaign: CampaignModel): CampaignRow {
+  return {
+    id: campaign.id,
+    name: campaign.name,
+    slug: campaign.slug,
+    description: campaign.description,
+    email_subject: campaign.emailSubject,
+    cta_text: campaign.ctaText,
+    status: campaign.status,
+    platform: campaign.platform,
+    budget_usd: campaign.budgetUsd,
+    created_at: campaign.createdAt,
+  };
 }
 
-export function findById(id: number): CampaignRow | null {
-  const row = getDb()
-    .prepare(
-      `SELECT ${selectColumns}
-       FROM campaigns
-       WHERE id = ?`,
-    )
-    .get(id) as CampaignRow | undefined;
-  return row ?? null;
+export async function findAll(): Promise<CampaignRow[]> {
+  const campaigns = await prisma.campaign.findMany({
+    orderBy: { id: "asc" },
+  });
+  return campaigns.map(toCampaignRow);
 }
 
-export function findBySlug(slug: string): CampaignRow | null {
-  const row = getDb()
-    .prepare(
-      `SELECT ${selectColumns}
-       FROM campaigns
-       WHERE slug = ?`,
-    )
-    .get(slug) as CampaignRow | undefined;
-  return row ?? null;
+export async function findById(id: number): Promise<CampaignRow | null> {
+  const campaign = await prisma.campaign.findUnique({
+    where: { id },
+  });
+  return campaign === null ? null : toCampaignRow(campaign);
+}
+
+export async function findBySlug(slug: string): Promise<CampaignRow | null> {
+  const campaign = await prisma.campaign.findUnique({
+    where: { slug },
+  });
+  return campaign === null ? null : toCampaignRow(campaign);
 }

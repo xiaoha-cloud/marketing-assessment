@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Campaign {
+  id           Int          @id
+  name         String
+  slug         String       @unique
+  description  String
+  emailSubject String       @map("email_subject")
+  ctaText      String       @map("cta_text")
+  status       String
+  platform     String
+  budgetUsd    Float        @map("budget_usd")
+  createdAt    String       @map("created_at")
+  events       Event[]
+  submissions  Submission[]
+
+  @@map("campaigns")
+}
+
+model Event {
+  id          Int      @id
+  campaignId  Int      @map("campaign_id")
+  name        String
+  eventDate   String   @map("event_date")
+  location    String
+  capacity    Int
+  description String
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+
+  @@map("events")
+}
+
+model Submission {
+  id          Int      @id @default(autoincrement())
+  campaignId  Int      @map("campaign_id")
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  email       String
+  company     String
+  submittedAt String   @map("submitted_at")
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+
+  @@map("submissions")
+}
+
+model LinkedinLead {
+  id              Int     @id @default(autoincrement())
+  rawName         String? @map("raw_name")
+  headline        String?
+  companyName     String? @map("company_name")
+  location        String?
+  profileUrl      String? @map("profile_url")
+  email           String?
+  connectionCount String? @map("connection_count")
+  scrapedAt       String? @map("scraped_at")
+  importedAt      String? @map("imported_at")
+
+  @@index([scrapedAt], map: "idx_linkedin_leads_scraped_at")
+  @@map("linkedin_leads")
+}
