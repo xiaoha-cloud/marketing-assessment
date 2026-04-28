@@ -1,6 +1,6 @@
 # Task 1 — Backend API
 
-Express + SQLite API for campaign listing, landing-page data, lead capture, outbound campaign email (Nodemailer + Ethereal), and submissions listing with CSV export.
+Express + Prisma/SQLite API for campaign listing, landing-page data, lead capture, outbound campaign email (Nodemailer + Ethereal), and submissions listing with CSV export.
 
 ## Install
 
@@ -17,7 +17,7 @@ Copy `.env.example` to `.env` (optional). Variables are loaded automatically whe
 |----------|-------------|---------|
 | `PORT` | HTTP port | `3000` |
 | `LANDING_BASE_URL` | Origin used in email CTA links (no trailing slash) | `http://localhost:5173` |
-| `DATABASE_PATH` | SQLite file path, relative to the backend project root | `data/app.db` |
+| `DATABASE_URL` | Prisma SQLite database URL, relative to `prisma/schema.prisma` | `file:../data/app.db` |
 
 ## Run
 
@@ -36,23 +36,27 @@ npm start
 
 The server prints `Server listening on port <PORT>` when ready.
 
-## SQLite initialization and seeding
+## SQLite migration and seeding
 
-On startup, before listening:
+The database schema is managed by Prisma migrations:
 
-1. **`initDb`** — Runs `src/db/schema.sql` (creates tables and indexes if missing). The parent directory for `DATABASE_PATH` is created automatically.
-2. **`seedDb`** — If the `campaigns` table is empty, inserts rows from `src/db/seed_campaigns.json` (campaigns and related events). If the table already has data, seeding is skipped (safe for restarts).
+```bash
+npm run db:migrate
+npm run db:seed
+```
 
-The build copies `schema.sql` and `seed_campaigns.json` into `dist/db/` so `npm start` resolves the same files as `npm run dev`.
+`npm run dev` and `npm start` run `prisma migrate deploy` before starting the server. On server startup, **`seedDb`** checks whether the `campaigns` table is empty and inserts rows from `src/db/seed_campaigns.json` when needed. If the table already has data, seeding is skipped (safe for restarts).
 
-**Resetting data:** Stop the server, delete the SQLite file (default: `data/app.db`), and start again to re-apply schema and seed.
+The build runs `prisma generate` and copies `seed_campaigns.json` into `dist/db/` so `npm start` can resolve the same seed fixture as `npm run dev`.
+
+**Resetting data:** Stop the server, run `npx prisma migrate reset`, and then run `npm run db:seed`.
 
 ## Architecture (layers)
 
-HTTP is wired in **routes** → **controllers** (thin) → **services** (workflows) → **repositories** (SQL). Email sending uses **email/** (Nodemailer/Ethereal); **db/** holds schema, seed JSON, and connection helpers only.
+HTTP is wired in **routes** → **controllers** (thin) → **services** (workflows) → **repositories** (Prisma data access). Email sending uses **email/** (Nodemailer/Ethereal); **db/** holds the Prisma client and seed logic.
 
 ```
-Routes → Controllers → Services → Repositories → SQLite
+Routes → Controllers → Services → Repositories → Prisma → SQLite
                     ↘ Email (Nodemailer)
 ```
 

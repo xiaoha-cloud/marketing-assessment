@@ -2,18 +2,26 @@
  * Read access for events. Returns DB row shapes; use mapper for domain models.
  */
 
-import { getDb } from "../db/connection.js";
+import { prisma } from "../db/prisma.js";
 import type { EventRow } from "../types/event.js";
+import type { EventModel } from "../generated/prisma/models/Event.js";
 
-const selectColumns = `id, campaign_id, name, event_date, location, capacity, description`;
+function toEventRow(event: EventModel): EventRow {
+  return {
+    id: event.id,
+    campaign_id: event.campaignId,
+    name: event.name,
+    event_date: event.eventDate,
+    location: event.location,
+    capacity: event.capacity,
+    description: event.description,
+  };
+}
 
-export function findByCampaignId(campaignId: number): EventRow[] {
-  return getDb()
-    .prepare(
-      `SELECT ${selectColumns}
-       FROM events
-       WHERE campaign_id = ?
-       ORDER BY event_date ASC, id ASC`,
-    )
-    .all(campaignId) as EventRow[];
+export async function findByCampaignId(campaignId: number): Promise<EventRow[]> {
+  const events = await prisma.event.findMany({
+    where: { campaignId },
+    orderBy: [{ eventDate: "asc" }, { id: "asc" }],
+  });
+  return events.map(toEventRow);
 }

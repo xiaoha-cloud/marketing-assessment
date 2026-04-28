@@ -2,74 +2,74 @@
  * Read and append-only create access for submissions.
  */
 
-import { getDb } from "../db/connection.js";
+import { prisma } from "../db/prisma.js";
 import type {
   CreateSubmissionInput,
   SubmissionListItem,
-  SubmissionListJoinRow,
   SubmissionRow,
 } from "../types/submission.js";
-import { mapSubmissionListJoinRow } from "../utils/mapper.js";
+import type { SubmissionModel } from "../generated/prisma/models/Submission.js";
 
-const selectColumns = `id, campaign_id, first_name, last_name, email, company, submitted_at`;
-
-export function findByCampaignId(campaignId: number): SubmissionRow[] {
-  return getDb()
-    .prepare(
-      `SELECT ${selectColumns}
-       FROM submissions
-       WHERE campaign_id = ?
-       ORDER BY submitted_at DESC, id DESC`,
-    )
-    .all(campaignId) as SubmissionRow[];
+function toSubmissionRow(submission: SubmissionModel): SubmissionRow {
+  return {
+    id: submission.id,
+    campaign_id: submission.campaignId,
+    first_name: submission.firstName,
+    last_name: submission.lastName,
+    email: submission.email,
+    company: submission.company,
+    submitted_at: submission.submittedAt,
+  };
 }
 
-export function findById(id: number): SubmissionRow | null {
-  const row = getDb()
-    .prepare(
-      `SELECT ${selectColumns}
-       FROM submissions
-       WHERE id = ?`,
-    )
-    .get(id) as SubmissionRow | undefined;
-  return row ?? null;
+export async function findByCampaignId(campaignId: number): Promise<SubmissionRow[]> {
+  const submissions = await prisma.submission.findMany({
+    where: { campaignId },
+    orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
+  });
+  return submissions.map(toSubmissionRow);
 }
 
-export function create(input: CreateSubmissionInput): number {
+export async function findById(id: number): Promise<SubmissionRow | null> {
+  const submission = await prisma.submission.findUnique({
+    where: { id },
+  });
+  return submission === null ? null : toSubmissionRow(submission);
+}
+
+export async function create(input: CreateSubmissionInput): Promise<number> {
   const submittedAt = new Date().toISOString();
-  const result = getDb()
-    .prepare(
-      `INSERT INTO submissions (
-        campaign_id, first_name, last_name, email, company, submitted_at
-      ) VALUES (?, ?, ?, ?, ?, ?)`,
-    )
-    .run(
-      input.campaignId,
-      input.firstName,
-      input.lastName,
-      input.email,
-      input.company,
+  const submission = await prisma.submission.create({
+    data: {
+      campaignId: input.campaignId,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      email: input.email,
+      company: input.company,
       submittedAt,
-    );
-  return Number(result.lastInsertRowid);
+    },
+    select: { id: true },
+  });
+  return submission.id;
 }
 
-export function findAllWithCampaignName(): SubmissionListItem[] {
-  const rows = getDb()
-    .prepare(
-      `SELECT
-         s.id,
-         s.campaign_id,
-         c.name AS campaign_name,
-         s.first_name,
-         s.last_name,
-         s.email,
-         s.company,
-         s.submitted_at
-       FROM submissions s
-       INNER JOIN campaigns c ON c.id = s.campaign_id
-       ORDER BY s.submitted_at DESC, s.id DESC`,
-    )
-    .all() as SubmissionListJoinRow[];
-  return rows.map(mapSubmissionListJoinRow);
+export async function findAllWithCampaignName(): Promise<SubmissionListItem[]> {
+  const submissions = await prisma.submission.findMany({
+    include: {
+      campaign: {
+        select: { name: true },
+      },
+    },
+    orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
+  });
+  return submissions.map((submission) => ({
+    id: submission.id,
+    campaignId: submission.campaignId,
+    campaignName: submission.campaign.name,
+    firstName: submission.firstName,
+    lastName: submission.lastName,
+    email: submission.email,
+    company: submission.company,
+    submittedAt: submission.submittedAt,
+  }));
 }

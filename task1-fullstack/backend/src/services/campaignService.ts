@@ -27,19 +27,20 @@ export type SendCampaignEmailOutcome =
       message: string;
     };
 
-function toCampaignWithEvents(row: CampaignRow): CampaignWithEvents {
+async function toCampaignWithEvents(row: CampaignRow): Promise<CampaignWithEvents> {
   const campaign = mapCampaignRow(row);
-  const eventRows = eventRepository.findByCampaignId(row.id);
+  const eventRows = await eventRepository.findByCampaignId(row.id);
   const events = eventRows.map(mapEventRow);
   return { ...campaign, events };
 }
 
-export function getAllCampaigns(): CampaignWithEvents[] {
-  return campaignRepository.findAll().map(toCampaignWithEvents);
+export async function getAllCampaigns(): Promise<CampaignWithEvents[]> {
+  const rows = await campaignRepository.findAll();
+  return Promise.all(rows.map(toCampaignWithEvents));
 }
 
-export function getCampaignById(id: number): CampaignWithEvents | null {
-  const row = campaignRepository.findById(id);
+export async function getCampaignById(id: number): Promise<CampaignWithEvents | null> {
+  const row = await campaignRepository.findById(id);
   if (row === null) {
     return null;
   }
@@ -49,17 +50,17 @@ export function getCampaignById(id: number): CampaignWithEvents | null {
 /**
  * Public landing payload: resolve by slug and attach events (no internal-only fields).
  */
-export function getLandingCampaignBySlug(slug: string): CampaignLandingView | null {
+export async function getLandingCampaignBySlug(slug: string): Promise<CampaignLandingView | null> {
   const trimmed = slug.trim();
   if (trimmed === "") {
     return null;
   }
-  const row = campaignRepository.findBySlug(trimmed);
+  const row = await campaignRepository.findBySlug(trimmed);
   if (row === null) {
     return null;
   }
   const campaign = mapCampaignRow(row);
-  const eventRows = eventRepository.findByCampaignId(row.id);
+  const eventRows = await eventRepository.findByCampaignId(row.id);
   const events = eventRows.map(mapEventRow);
   return {
     id: campaign.id,
@@ -83,7 +84,7 @@ export async function sendCampaignEmail(
       message: "recipientEmail must be a valid email address",
     };
   }
-  const row = campaignRepository.findById(campaignId);
+  const row = await campaignRepository.findById(campaignId);
   if (row === null) {
     return {
       ok: false,
